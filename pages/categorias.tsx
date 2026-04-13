@@ -11,58 +11,30 @@ interface Props {
 
 export default function CategoriasPage({ categorias, settings }: Props) {
   return (
-    <Layout settings={settings} title="Categorias">
-      <div style={{ background: 'var(--grad-banner)', padding: '3rem 1.5rem', borderBottom: '3px solid var(--ouro)' }}>
-        <div className="container" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.8rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ouro)', marginBottom: '0.5rem' }}>
-            Navegação
-          </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'white' }}>
-            Categorias
-          </h1>
+    <Layout settings={settings} categorias={settings.categorias || []} title="Categorias">
+      <div style={{ background: 'linear-gradient(135deg, #7a221e 0%, #621510 100%)' }} className="relative">
+        <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: 'linear-gradient(to right, transparent, #d0ab58, transparent)' }} />
+        <div className="max-w-6xl mx-auto px-6 py-12 text-center">
+          <h1 className="font-display text-3xl md:text-4xl font-bold" style={{ color: 'white' }}>Categorias</h1>
         </div>
       </div>
 
-      <div className="container" style={{ margin: '3rem auto', maxWidth: '800px' }}>
+      <div className="max-w-4xl mx-auto px-6 py-16">
         {categorias.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'var(--texto-suave)', padding: '3rem' }}>
-            Nenhuma categoria encontrada.
-          </p>
+          <p className="text-center font-serif text-lg" style={{ color: 'rgba(18,18,18,0.5)' }}>Nenhuma categoria encontrada.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.2rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {categorias.map(cat => (
-              <Link
-                key={cat.nome}
-                href={`/categoria/${encodeURIComponent(cat.nome)}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <div style={{
-                  background: 'white',
-                  border: '1px solid var(--borda)',
-                  borderRadius: 'var(--raio-md)',
-                  padding: '1.5rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  cursor: 'pointer',
-                }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)'
-                    ;(e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 24px var(--sombra)'
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.transform = ''
-                    ;(e.currentTarget as HTMLDivElement).style.boxShadow = ''
-                  }}
-                >
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', color: 'var(--bordo-deep)', fontWeight: 600 }}>
-                    {cat.nome}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--ouro-dark)', fontWeight: 600 }}>
+              <Link key={cat.nome} href={`/categoria/${encodeURIComponent(cat.nome)}`} className="group block">
+                <div className="border border-gray-200 group-hover:border-bordo/40 transition-all duration-300 p-6 gold-hover"
+                  style={{ background: 'var(--cream)' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--parchment)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'var(--cream)')}>
+                  <h2 className="font-display text-xl font-semibold mb-1" style={{ color: 'var(--bordo-dark)' }}>{cat.nome}</h2>
+                  <p className="font-sans text-xs" style={{ color: 'var(--ouro-dark)' }}>
                     {cat.count} {cat.count === 1 ? 'artigo' : 'artigos'}
-                  </div>
-                  <div style={{ marginTop: '0.5rem', height: '2px', background: 'var(--grad-ouro)', borderRadius: '1px' }} />
+                  </p>
+                  <div className="mt-3 h-px" style={{ background: 'linear-gradient(to right, var(--ouro), transparent)' }} />
                 </div>
               </Link>
             ))}

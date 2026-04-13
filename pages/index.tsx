@@ -1,102 +1,80 @@
 import { GetStaticProps } from 'next'
-import Link from 'next/link'
 import Layout from '../components/blog/Layout'
-import Sidebar from '../components/blog/Sidebar'
 import PostCard from '../components/blog/PostCard'
-import { getAllPosts, getAllCategories, PostMeta } from '../lib/posts'
+import { getAllPosts, PostMeta } from '../lib/posts'
 import { getSettings, SiteSettings } from '../lib/settings'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 
 interface Props {
   posts: PostMeta[]
-  recentes: PostMeta[]
-  categorias: { nome: string; count: number }[]
   settings: SiteSettings
-  destaque: PostMeta | null
 }
 
-export default function Home({ posts, recentes, categorias, settings, destaque }: Props) {
-  const restantes = destaque ? posts.filter(p => p.slug !== destaque.slug) : posts
+export default function Home({ posts, settings }: Props) {
+  const featured = posts[0] || null
+  const rest = posts.slice(1)
 
   return (
-    <Layout settings={settings}>
-      {/* Hero com post em destaque */}
-      {destaque ? (
-        <div className="hero-banner">
-          <div className="hero-content">
-            <div className="hero-subtitle">
-              <span style={{ color: 'var(--ouro)' }}>✦</span> {destaque.categoria} <span style={{ color: 'var(--ouro)' }}>✦</span>
-            </div>
-            <h1 className="hero-title">{destaque.titulo}</h1>
-            <p className="hero-excerpt">{destaque.excerpt}</p>
-            <div className="hero-meta">
-              {destaque.data && (
-                <span>
-                  📅 {format(new Date(destaque.data + 'T00:00:00'), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                </span>
-              )}
-              <span>⏱ {destaque.tempoLeitura} min de leitura</span>
-            </div>
-            <div style={{ marginTop: '2rem' }}>
-              <Link href={`/post/${destaque.slug}`} className="btn-ouro">
-                Ler Artigo Completo →
-              </Link>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="hero-banner">
-          <div className="hero-content">
-            <div className="hero-subtitle">
-              <span style={{ color: 'var(--ouro)' }}>✦</span> Literatura & Espiritualidade <span style={{ color: 'var(--ouro)' }}>✦</span>
-            </div>
-            <h1 className="hero-title">{settings.nome}</h1>
-            <p className="hero-excerpt">{settings.descricao}</p>
-          </div>
-        </div>
+    <Layout settings={settings} categorias={settings.categorias || []}>
+
+      {/* Banner hero com post em destaque */}
+      {featured && (
+        <section className="max-w-6xl mx-auto px-6 pt-10 pb-6">
+          <PostCard
+            id={featured.slug}
+            title={featured.titulo}
+            date={featured.data}
+            excerpt={featured.excerpt}
+            category={featured.categoria}
+            coverImage={featured.imagem}
+            readingTime={featured.tempoLeitura}
+            featured={true}
+          />
+        </section>
       )}
 
-      {/* Grid de posts */}
-      <div className="layout-blog">
-        <div>
-          {restantes.length > 0 ? (
-            <>
-              <div style={{ marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '1.3rem', color: 'var(--bordo-deep)', fontFamily: 'var(--font-display)' }}>
-                  Artigos Recentes
-                </h2>
-                <div className="divisor-ouro" />
-              </div>
-              <div className="posts-grid">
-                {restantes.map(post => (
-                  <PostCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--texto-suave)' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📖</div>
-              <p>Nenhum artigo publicado ainda.</p>
-            </div>
-          )}
-        </div>
+      {/* Grid de artigos recentes */}
+      {rest.length > 0 && (
+        <section className="max-w-6xl mx-auto px-6 pb-16">
+          <div className="ornamental-divider my-8">
+            <span className="font-display text-xs tracking-[0.3em] uppercase font-semibold px-4"
+              style={{ color: 'var(--ouro-dark)' }}>
+              Artigos Recentes
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {rest.map(post => (
+              <PostCard
+                key={post.slug}
+                id={post.slug}
+                title={post.titulo}
+                date={post.data}
+                excerpt={post.excerpt}
+                category={post.categoria}
+                coverImage={post.imagem}
+                readingTime={post.tempoLeitura}
+                variant="compact"
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
-        <Sidebar recentes={recentes} categorias={categorias} settings={settings} />
-      </div>
+      {posts.length === 0 && (
+        <div className="max-w-6xl mx-auto px-6 py-24 text-center">
+          <p className="font-display text-2xl mb-2" style={{ color: 'var(--bordo-dark)' }}>
+            {settings.nome}
+          </p>
+          <p className="font-sans text-base" style={{ color: 'rgba(18,18,18,0.5)' }}>
+            {settings.descricao}
+          </p>
+        </div>
+      )}
     </Layout>
   )
 }
 
 export const getStaticProps: GetStaticProps = async () => {
   const posts = getAllPosts()
-  const categorias = getAllCategories()
   const settings = getSettings()
-  const destaque = posts[0] || null
-  const recentes = posts.slice(0, 5)
-
-  return {
-    props: { posts, recentes, categorias, settings, destaque },
-    revalidate: 60,
-  }
+  return { props: { posts, settings }, revalidate: 60 }
 }
