@@ -139,7 +139,7 @@ export default function Configuracoes({ settings: initial }: Props) {
                 <input
                   type="text"
                   className="form-input"
-                  value={(form as Record<string, string>)[field]}
+                  value={(form as unknown as Record<string, string>)[field]}
                   onChange={e => handleChange(field as keyof SiteSettings, e.target.value)}
                   placeholder={placeholder}
                 />
