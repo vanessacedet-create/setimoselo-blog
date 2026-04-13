@@ -11,24 +11,32 @@ export interface SiteSettings {
   instagram: string
   facebook: string
   youtube: string
+  twitter: string
+  tiktok: string
   whatsapp: string
-  linkLoja: string
+  email: string
+  storeUrl: string
   googleAnalytics: string
   rodape: string
+  categorias: { id: string; slug: string; label: string }[]
 }
 
 const defaultSettings: SiteSettings = {
   nome: 'Blog Editora Sétimo Selo',
   descricao: 'Literatura, espiritualidade e pensamento clássico',
   logo: '/images/logo.png',
-  favicon: '/favicon.ico',
+  favicon: '/images/logo.png',
   instagram: '',
   facebook: '',
   youtube: '',
+  twitter: '',
+  tiktok: '',
   whatsapp: '',
-  linkLoja: 'https://editorasetimoselo.com.br',
+  email: '',
+  storeUrl: 'https://editorasetimoselo.com.br',
   googleAnalytics: '',
   rodape: '© Editora Sétimo Selo. Todos os direitos reservados.',
+  categorias: [],
 }
 
 export function getSettings(): SiteSettings {
