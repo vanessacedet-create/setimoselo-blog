@@ -2,12 +2,20 @@
   "nome": "Blog Editora Sétimo Selo",
   "descricao": "Literatura, espiritualidade e pensamento clássico",
   "logo": "/images/logo.png",
-  "favicon": "/favicon.ico",
+  "favicon": "/images/logo.png",
   "instagram": "",
   "facebook": "",
   "youtube": "",
+  "twitter": "",
+  "tiktok": "",
   "whatsapp": "",
-  "linkLoja": "https://editorasetimoselo.com.br",
+  "email": "",
+  "storeUrl": "https://editorasetimoselo.com.br",
   "googleAnalytics": "",
-  "rodape": "© Editora Sétimo Selo. Todos os direitos reservados."
+  "rodape": "© Editora Sétimo Selo. Todos os direitos reservados.",
+  "categorias": [
+    { "id": "1", "slug": "literatura", "label": "Literatura" },
+    { "id": "2", "slug": "espiritualidade", "label": "Espiritualidade" },
+    { "id": "3", "slug": "classicos", "label": "Clássicos" }
+  ]
 }
