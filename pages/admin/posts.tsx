@@ -5,14 +5,11 @@ import { useState } from 'react'
 import AdminLayout from '../../components/admin/AdminLayout'
 import { getAllPosts, PostMeta } from '../../lib/posts'
 
-interface Props {
-  posts: PostMeta[]
-}
+interface Props { posts: PostMeta[] }
 
 export default function AdminPosts({ posts }: Props) {
   const [filtro, setFiltro] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
   const [lista, setLista] = useState(posts)
 
   const filtrados = lista.filter(p =>
@@ -21,109 +18,68 @@ export default function AdminPosts({ posts }: Props) {
   )
 
   async function handleDelete(slug: string) {
-    if (confirmDelete !== slug) {
-      setConfirmDelete(slug)
-      return
-    }
-    setLoading(true)
+    if (confirmDelete !== slug) { setConfirmDelete(slug); return }
     const res = await fetch(`/api/posts/${slug}`, { method: 'DELETE' })
-    setLoading(false)
-    if (res.ok) {
-      setLista(prev => prev.filter(p => p.slug !== slug))
-      setConfirmDelete(null)
-    } else {
-      alert('Erro ao excluir artigo.')
-    }
+    if (res.ok) { setLista(prev => prev.filter(p => p.slug !== slug)); setConfirmDelete(null) }
+    else alert('Erro ao excluir.')
   }
 
   return (
     <AdminLayout titulo="Artigos">
-      <div className="admin-header-bar">
-        <h1 className="admin-page-title">Artigos ({lista.length})</h1>
-        <Link href="/admin/novo" className="btn-ler">+ Novo Artigo</Link>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', color: 'var(--bordo-dark)' }}>
+          Artigos ({lista.length})
+        </h1>
+        <Link href="/admin/novo" style={{ background: 'linear-gradient(135deg, #7a221e 0%, #621510 100%)', color: 'white', padding: '0.5rem 1.2rem', borderRadius: '3px', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
+          + Novo Artigo
+        </Link>
       </div>
 
-      <div className="admin-card">
-        <div style={{ marginBottom: '1rem' }}>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Filtrar por título ou categoria..."
-            value={filtro}
-            onChange={e => setFiltro(e.target.value)}
-            style={{ maxWidth: '400px' }}
-          />
-        </div>
+      <div style={{ background: 'white', borderRadius: '6px', padding: '1.5rem', border: '1px solid #e0d8cc' }}>
+        <input className="form-input" style={{ maxWidth: '400px', marginBottom: '1.2rem' }}
+          placeholder="Filtrar por título ou categoria..."
+          value={filtro} onChange={e => setFiltro(e.target.value)} />
 
         {filtrados.length === 0 ? (
           <p style={{ color: '#aaa', textAlign: 'center', padding: '2rem' }}>
-            {lista.length === 0 ? (
-              <>Nenhum artigo ainda. <Link href="/admin/novo">Criar o primeiro →</Link></>
-            ) : 'Nenhum artigo corresponde ao filtro.'}
+            {lista.length === 0 ? <><Link href="/admin/novo" style={{ color: 'var(--bordo)' }}>Criar o primeiro artigo →</Link></> : 'Nenhum artigo corresponde ao filtro.'}
           </p>
         ) : (
-          <table className="admin-table">
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
             <thead>
-              <tr>
-                <th>Título</th>
-                <th>Categoria</th>
-                <th>Data</th>
-                <th>Leitura</th>
-                <th>Status</th>
-                <th>Ações</th>
+              <tr style={{ background: '#f5ede0' }}>
+                {['Título', 'Categoria', 'Data', 'Status', 'Ações'].map(h => (
+                  <th key={h} style={{ padding: '0.6rem 0.8rem', textAlign: 'left', fontWeight: 700, color: 'var(--bordo-dark)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '2px solid #e0d8cc' }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {filtrados.map(post => (
-                <tr key={post.slug}>
-                  <td style={{ fontWeight: 500, maxWidth: '300px' }}>
-                    <Link href={`/admin/editar/${post.slug}`} style={{ color: 'var(--bordo-deep)' }}>
-                      {post.titulo}
-                    </Link>
+                <tr key={post.slug} style={{ borderBottom: '1px solid #f0e8d8' }}>
+                  <td style={{ padding: '0.7rem 0.8rem', fontWeight: 500, maxWidth: '300px' }}>
+                    <Link href={`/admin/editar/${post.slug}`} style={{ color: 'var(--bordo-dark)' }}>{post.titulo}</Link>
                   </td>
-                  <td>
-                    <span style={{
-                      background: 'var(--creme-dark)', color: 'var(--ouro-dark)',
-                      padding: '0.15rem 0.6rem', borderRadius: '1rem', fontSize: '0.8rem', fontWeight: 600,
-                    }}>
+                  <td style={{ padding: '0.7rem 0.8rem' }}>
+                    <span style={{ background: '#f5ede0', color: 'var(--ouro-dark)', padding: '0.15rem 0.6rem', borderRadius: '1rem', fontSize: '0.8rem', fontWeight: 600 }}>
                       {post.categoria}
                     </span>
                   </td>
-                  <td style={{ fontSize: '0.85rem', color: '#888' }}>{post.data}</td>
-                  <td style={{ fontSize: '0.85rem', color: '#888' }}>{post.tempoLeitura} min</td>
-                  <td>
-                    {post.publicado
-                      ? <span className="badge-publicado">Publicado</span>
-                      : <span className="badge-rascunho">Rascunho</span>
-                    }
+                  <td style={{ padding: '0.7rem 0.8rem', color: '#888', fontSize: '0.85rem' }}>{post.data}</td>
+                  <td style={{ padding: '0.7rem 0.8rem' }}>
+                    <span className={post.publicado ? 'badge-pub' : 'badge-draft'}>
+                      {post.publicado ? 'Publicado' : 'Rascunho'}
+                    </span>
                   </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
-                      <Link href={`/admin/editar/${post.slug}`} style={{ fontSize: '0.82rem', color: 'var(--bordo)' }}>
-                        ✏️ Editar
-                      </Link>
-                      <a href={`/post/${post.slug}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.82rem', color: '#888' }}>
-                        👁 Ver
-                      </a>
-                      <button
-                        onClick={() => handleDelete(post.slug)}
-                        disabled={loading}
-                        style={{
-                          background: 'none', border: 'none', cursor: 'pointer',
-                          fontSize: '0.82rem',
-                          color: confirmDelete === post.slug ? '#e74c3c' : '#ccc',
-                          fontWeight: confirmDelete === post.slug ? 700 : 400,
-                        }}
-                      >
-                        {confirmDelete === post.slug ? '⚠ Confirmar exclusão' : '🗑 Excluir'}
+                  <td style={{ padding: '0.7rem 0.8rem' }}>
+                    <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+                      <Link href={`/admin/editar/${post.slug}`} style={{ color: 'var(--bordo)', fontSize: '0.82rem' }}>✏️ Editar</Link>
+                      <a href={`/post/${post.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#888', fontSize: '0.82rem' }}>👁 Ver</a>
+                      <button onClick={() => handleDelete(post.slug)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.82rem', color: confirmDelete === post.slug ? '#e74c3c' : '#ccc', fontWeight: confirmDelete === post.slug ? 700 : 400 }}>
+                        {confirmDelete === post.slug ? '⚠ Confirmar' : '🗑'}
                       </button>
                       {confirmDelete === post.slug && (
-                        <button
-                          onClick={() => setConfirmDelete(null)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.82rem', color: '#aaa' }}
-                        >
-                          Cancelar
-                        </button>
+                        <button onClick={() => setConfirmDelete(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.82rem', color: '#aaa' }}>Cancelar</button>
                       )}
                     </div>
                   </td>
@@ -140,6 +96,5 @@ export default function AdminPosts({ posts }: Props) {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getSession(ctx)
   if (!session) return { redirect: { destination: '/admin/login', permanent: false } }
-  const posts = getAllPosts(false)
-  return { props: { posts } }
+  return { props: { posts: getAllPosts(false) } }
 }
