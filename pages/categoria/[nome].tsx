@@ -1,69 +1,59 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
 import Layout from '../../components/blog/Layout'
-import Sidebar from '../../components/blog/Sidebar'
 import PostCard from '../../components/blog/PostCard'
-import { getAllPosts, getAllCategories, getPostsByCategory, PostMeta } from '../../lib/posts'
+import { getAllPosts, getPostsByCategory, getAllCategories, PostMeta } from '../../lib/posts'
 import { getSettings, SiteSettings } from '../../lib/settings'
 
 interface Props {
   categoria: string
   posts: PostMeta[]
-  recentes: PostMeta[]
-  categorias: { nome: string; count: number }[]
   settings: SiteSettings
 }
 
-export default function CategoriaPage({ categoria, posts, recentes, categorias, settings }: Props) {
+export default function CategoriaPage({ categoria, posts, settings }: Props) {
   return (
-    <Layout settings={settings} title={`Categoria: ${categoria}`} description={`Artigos sobre ${categoria}`}>
-      <div style={{ background: 'var(--grad-banner)', padding: '3rem 1.5rem', borderBottom: '3px solid var(--ouro)' }}>
-        <div className="container" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.8rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ouro)', marginBottom: '0.5rem' }}>
+    <Layout settings={settings} categorias={settings.categorias || []} title={categoria}>
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(135deg, #7a221e 0%, #621510 100%)' }} className="relative">
+        <div className="absolute inset-x-0 bottom-0 h-px" style={{ background: 'linear-gradient(to right, transparent, #d0ab58, transparent)' }} />
+        <div className="max-w-6xl mx-auto px-6 py-12 text-center">
+          <p className="font-display text-xs tracking-[0.3em] uppercase font-semibold mb-3" style={{ color: 'var(--ouro)' }}>
             Categoria
-          </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'white' }}>
-            {categoria}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: '0.5rem' }}>
-            {posts.length} {posts.length === 1 ? 'artigo' : 'artigos'} publicado{posts.length !== 1 ? 's' : ''}
+          </p>
+          <h1 className="font-display text-3xl md:text-4xl font-bold" style={{ color: 'white' }}>{categoria}</h1>
+          <p className="font-sans text-sm mt-3" style={{ color: 'rgba(208,171,88,0.7)' }}>
+            {posts.length} {posts.length === 1 ? 'artigo' : 'artigos'}
           </p>
         </div>
       </div>
 
-      <div className="layout-blog">
-        <div>
-          {posts.length > 0 ? (
-            <div className="posts-grid">
-              {posts.map(post => <PostCard key={post.slug} post={post} />)}
-            </div>
-          ) : (
-            <p style={{ color: 'var(--texto-suave)', padding: '2rem 0' }}>Nenhum artigo nesta categoria.</p>
-          )}
-        </div>
-        <Sidebar recentes={recentes} categorias={categorias} settings={settings} />
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        {posts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts.map(post => (
+              <PostCard key={post.slug} id={post.slug} title={post.titulo} date={post.data}
+                excerpt={post.excerpt} category={post.categoria} coverImage={post.imagem}
+                readingTime={post.tempoLeitura} variant="compact" />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center font-serif text-lg py-16" style={{ color: 'rgba(18,18,18,0.5)' }}>
+            Nenhum artigo nesta categoria ainda.
+          </p>
+        )}
       </div>
     </Layout>
   )
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const categorias = getAllCategories()
-  return {
-    paths: categorias.map(c => ({ params: { nome: c.nome } })),
-    fallback: 'blocking',
-  }
+  const cats = getAllCategories()
+  return { paths: cats.map(c => ({ params: { nome: c.nome } })), fallback: 'blocking' }
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const categoria = decodeURIComponent(params?.nome as string)
   const posts = getPostsByCategory(categoria)
-  const allPosts = getAllPosts()
-  const recentes = allPosts.slice(0, 5)
-  const categorias = getAllCategories()
   const settings = getSettings()
-
-  return {
-    props: { categoria, posts, recentes, categorias, settings },
-    revalidate: 60,
-  }
+  return { props: { categoria, posts, settings }, revalidate: 60 }
 }
